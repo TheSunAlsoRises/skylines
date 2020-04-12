@@ -448,12 +448,14 @@
 	
 	  var path = document.querySelector("#path"+pathDirection),
 		  totalLength = path.getTotalLength(),
-		  group = totalLength / 20,
+		  //group = totalLength / 20,
+		  group = (totalLength * 0.05),
 		  start;
 
 	  var arrowheads = d3.select("#svg"+pathDirection).selectAll("use")
 		// insert number of arrows to range()
-		.data(d3.range(20).map(function(d){ return d * group + 140; }))
+		//.data(d3.range(20).map(function(d){ return d * group + 140; }))
+		.data(d3.range(group/2.1).map(function(d){ return d * group + 140; }))
 		.enter()
 		.append("use")
 			.attr("xlink:href", "#arrowhead"+pathDirection);

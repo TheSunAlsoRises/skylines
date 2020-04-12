@@ -1,0 +1,367 @@
+<!http://localhost/D3projects/skylines/visf.html>
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.0/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.0/mapbox-gl.css' rel='stylesheet' />
+
+  <style>
+    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+    #leftBox {
+      position: absolute;
+      width: 49.75%;
+      height: 98.5%;
+	  border: 5px solid #00ccff;
+	}    
+	#rightBox {	        
+      position: absolute;
+	  left: 50.5%;
+      width: 48.75%;
+      height: 98.5%;
+	  border: 5px solid red;
+	}  
+	#map { 
+      position:absolute; 
+      width: 100%;
+      height: 100%;
+    }
+    svg {
+      position: absolute;
+      width: 80%;
+      height: 100%;
+      height: 98.5%;
+	  border: 5px solid red;
+    }
+	
+	/* Chekboxes */	
+	
+	.container {
+		left: 10%;
+	  display: block;
+	  position: relative;
+	  padding-left: 35px;
+	  margin-bottom: 12px;
+	  cursor: pointer;
+	  font-size: 22px;
+	  -webkit-user-select: none;
+	  -moz-user-select: none;
+	  -ms-user-select: none;
+	  user-select: none;
+	}	
+	/* Hide the browser's default checkbox */
+	.container input {
+	  position: absolute;
+	  opacity: 0;
+	  cursor: pointer;
+	  height: 0;
+	  width: 0;
+	}
+	/* Create a custom checkbox */
+	.checkmark {
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  height: 25px;
+	  width: 25px;
+	  background-color: #eee;
+	}
+	/* On mouse-over, add a grey background color */
+	.container:hover input ~ .checkmark {
+	  background-color: #ccc;
+	}
+	/* When the checkbox is checked, add a blue background */
+	.container input:checked ~ .checkmark {
+	  background-color: #2196F3;
+	}
+	/* Create the checkmark/indicator (hidden when not checked) */
+	.checkmark:after {
+	  content: "";
+	  position: absolute;
+	  display: none;
+	}
+	/* Show the checkmark when checked */
+	.container input:checked ~ .checkmark:after {
+	  display: block;
+	}
+	/* Style the checkmark/indicator */
+	.container .checkmark:after {
+	  left: 9px;
+	  top: 5px;
+	  width: 5px;
+	  height: 10px;
+	  border: solid white;
+	  border-width: 0 3px 3px 0;
+	  -webkit-transform: rotate(45deg);
+	  -ms-transform: rotate(45deg);
+	  transform: rotate(45deg);
+	}
+	
+	// Arrows and paths:
+	path {
+      fill: none;
+      //stroke: #d3008c;
+      stroke-width: 2px;
+    }
+    #arrowhead {
+      fill: #d3008c;
+      //stroke: none;
+    }
+	</style>
+</head>
+
+<body>
+
+  <div id="leftBox">
+	<h1>Custom Checkboxes</h1>
+	<label class="container">All
+	  <input type="checkbox" oninput="checkListener()" checked="checked">
+	  <span class="checkmark"></span>
+	</label>
+	<label class="container">Falco subbuteo
+	  <input type="checkbox" oninput="checkListener()">
+	  <span class="checkmark"></span>
+	</label>
+	<label class="container">Erythropygia galactotes
+	  <input type="checkbox" oninput="checkListener()">
+	  <span class="checkmark"></span>
+	</label>
+	<label class="container">Hippolais pallida
+	  <input type="checkbox" oninput="checkListener()">
+	  <span class="checkmark"></span>
+	</label>
+  </div>
+  
+  <div id="rightBox">
+	<div id="map"></div>
+	<svg id="svgNorth" version="1.1" xmlns="http://www.w3.org/2000/svg" width="960" height="500">	
+		<path id="pathNorth" fill ="none" stroke="blue" stroke-width="3" 
+			d="M500,800 
+			C500,820 520,520 450,440
+			C450,440 520,520 540,300 
+			C540,300 520,200 580,100"/>
+		<defs>
+		  <path id="arrowheadNorth" stroke-width="3" d="M7,0 L-7,-5 L-7,5 Z" />
+		</defs>
+	</svg>
+	<svg id="svgSouth" version="1.1" xmlns="http://www.w3.org/2000/svg" width="960" height="500">	
+		<path id="pathSouth" fill ="none" stroke="red" stroke-width="3" 
+			d="M600,800 
+			C600,820 520,520 450,440
+			C550,440 520,520 700,400"/>
+		<defs>
+		  <path id="arrowheadSouth" stroke-width="3" d="M7,0 L-7,-5 L-7,5 Z" />
+		</defs>
+	</svg>
+  </div>
+
+  <script>
+	
+	//getInputs();
+  
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZW5qYWxvdCIsImEiOiJjaWhtdmxhNTIwb25zdHBsejk0NGdhODJhIn0.2-F2hS_oTZenAWc0BMf_uw'
+    
+    //Setup mapbox-gl map
+    var map = new mapboxgl.Map({
+      container: 'map', // container id
+      style: 'mapbox://styles/enjalot/cihmvv7kg004v91kn22zjptsc',
+      center: [35,31.44],
+      zoom: 7,
+    })
+    map.scrollZoom.disable()
+    map.addControl(new mapboxgl.Navigation());
+
+    // Setup our svg layer that we can manipulate with d3
+    var canvasContainer = map.getCanvasContainer()
+    var svgMap = d3.select(canvasContainer).append("svg")
+	var dots
+  
+    function project(d) {
+      return map.project(getLL(d));
+    }
+    function getLL(d) {
+      return new mapboxgl.LngLat(+d.lon, +d.lat)
+    }
+  
+    //d3.csv("large_mammals_observations.csv", function(err, data) {
+    d3.csv("birds_observations.csv", function(err, data) {
+		//console.log(data[0], getLL(data[0]), project(data[0]))
+		dots = svgMap.selectAll("circle.dot")
+        .data(data)
+      
+		dots.enter().append("circle").classed("dot", true)
+		.attr("r", 1)
+		.style({
+			fill: "#0082a3",
+			"fill-opacity": 0.6,
+			stroke: "#004d60",
+			"stroke-width": 1
+		})
+
+		.transition().duration(1000)
+		
+		// render our initial visualization
+		render()
+		
+		 
+		// re-render our visualization whenever the view changes
+		map.on("viewreset", function() {
+			render()
+		})
+		map.on("move", function() {
+			render()
+		})
+
+		
+    })
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////-------------Functions--------------///////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// Hides all the dots
+	function hideall() {
+		dots.attr("r", 0)
+	}
+	
+	
+	// Views the dots of the chosen types on the map
+	function render() {
+		// hide all the dots
+		dots.attr("r", 0)
+		
+		chosenTypes = getInputs()
+		
+		// get only the relevant birds
+		var relevantDots = d3.selectAll("circle").classed("dot", true)
+		.filter(function(d){
+			for(i=0; i<chosenTypes.length; i++){
+				if (d.species_latin == chosenTypes[i]){return true}
+			}
+		})
+		// The user selected all the types ("All" checkbox)
+		if (chosenTypes.includes("All"))
+			relevantDots = dots;
+
+		//console.log(relevantDots);
+		relevantDots
+		.attr({
+		  cx: function(d) {
+				var x = project(d).x
+				return x	
+		  },
+		  cy: function(d) {
+				var y = project(d).y
+				return y
+		  },
+		  r: 6,
+		})
+		.style("fill", "0000ff")
+		.style("stroke", "ff0000")
+		
+		
+		
+		// Create 2D array hold the hold the birds sorted by their types
+		var sortedRelevantDots = Array();
+		for(i=0; i<chosenTypes.length; i++){
+			sortedRelevantDots[i] = Array();
+		}
+
+		// Sort the birds by their types
+		relevantDots.each(function(d, i){
+			for(i=0; i<chosenTypes.length; i++){
+				if (d.species_latin == chosenTypes[i]){
+					sortedRelevantDots[i].push(d);
+				}
+			}
+		})
+		console.log(sortedRelevantDots);
+		createArrows("North");
+		createArrows("South");
+	}
+	
+	
+	// Gets the inputs from the checkboxes
+	function getInputs(){
+		var chosenTypes = [];
+		var inputs = d3.selectAll(".container")[0];
+		for(i=0; i<inputs.length; i++){
+			if (inputs[i].children[0].checked == true)
+				chosenTypes.push(inputs[i].innerText);
+		}
+		//console.log(chosenTypes);
+		return chosenTypes;
+	}
+	
+	function checkListener()
+	{
+		render();
+	}
+    
+	
+	/////////////////////////////////////////-------------Moving Arrows--------------///////////////////////////////////////////////
+	// pathDirection == North or South
+	function createArrows(pathDirection){
+	
+	  var path = document.querySelector("#path"+pathDirection),
+		  totalLength = path.getTotalLength(),
+		  group = totalLength / 20,
+		  start;
+
+	  var arrowheads = d3.select("#svg"+pathDirection).selectAll("use")
+		// insert number of arrows to range()
+		.data(d3.range(20).map(function(d){ return d * group + 140; }))
+		.enter()
+		.append("use")
+			.attr("xlink:href", "#arrowhead"+pathDirection);
+
+	  path.style.strokeDasharray = "140," + (group - 140);
+
+	  requestAnimationFrame(update);
+
+	  function update(t) {
+		if (!start) {
+		  start = t;
+		}
+
+		var offset = -group * ((t - start) % 900) / 900;
+
+		path.style.strokeDashoffset = offset;
+
+		arrowheads.attr("transform",function(d){
+
+		  var l = d - offset;
+
+		  if (l < 0) {
+			l = totalLength + l;
+		  } else if (l > totalLength) {
+			l -= totalLength;
+		  }
+
+		  var p = pointAtLength(l);
+		  return "translate(" + p + ") rotate( " + angleAtLength(l) + ")";
+		});
+
+		requestAnimationFrame(update);
+	  }
+
+	  function pointAtLength(l) {
+
+		var xy = path.getPointAtLength(l);
+		return [xy.x, xy.y];
+
+	  }
+
+	  // Approximate tangent
+	  function angleAtLength(l) {
+
+		var a = pointAtLength(Math.max(l - 0.01,0)), // this could be slightly negative
+			b = pointAtLength(l + 0.01); // browsers cap at total length
+
+		return Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+
+	  }
+	}
+  </script>
+</body>

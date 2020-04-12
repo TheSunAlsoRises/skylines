@@ -1,0 +1,95 @@
+<!-- <!http://localhost/D3projects/skylines/visf8.8.html> -->
+<!DOCTYPE html>
+
+<head>
+	<title>Birds observation</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1 ,height=device-height">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.0/mapbox-gl.js'></script>
+	<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.0/mapbox-gl.css' rel='stylesheet' />
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+	<header>
+		<img src="https://img.icons8.com/plasticine/2x/bird.png" alt="birdIcon">Birds Migration In Israel
+	</header>
+	<div class="boxx">
+		<div id="leftBox">
+			<h3>Choose a bird species to see its observation and migration data</h3>
+			<div style="display: flex; flex-flow:row">
+				<div>
+					<div id="leftBirds">
+						<label class="container">All
+							<input id="cb1" type="checkbox" onclick="clear()" oninput="checkListener(this.id)"
+								checked="checked">
+							<span class="checkmark"></span>
+						</label>
+						<label class="container">Falco subbuteo
+							<input id="cb2" type="checkbox" onclick="updateFS(months)" oninput="checkListener(this.id)">
+							<span class="checkmark"></span>
+						</label>
+						<label class="container">Erythropygia galactotes
+							<input id="cb3" type="checkbox" onclick="updateEG(months)" oninput="checkListener(this.id)">
+							<span class="checkmark"></span>
+						</label>
+					</div>
+					<div id="rightBirds">
+						<label class="container">Hippolais pallida
+							<input id="cb4" type="checkbox" onclick="updateHP(months)" oninput="checkListener(this.id)">
+							<span class="checkmark"></span>
+						</label>
+						<label class="container">Sylvia melanocephala
+							<input id="cb5" type="checkbox" onclick="updateSM(months)" oninput="checkListener(this.id)">
+							<span class="checkmark"></span>
+						</label>
+						<label class="container">Streptopelia decaocto
+							<input id="cb6" type="checkbox" onclick="updateSD(months)" oninput="checkListener(this.id)">
+							<span class="checkmark"></span>
+						</label>
+					</div>
+				</div>
+				<div class="birdsImage">
+					<img class="birdImg"
+						src="http://www.hbw.com/sites/default/files/styles/large_a/public/figures/hbw02/jpg/02_27_047_Falco%20subbuteo.jpg"
+						alt="Falco subbuteo">
+					<img class="birdImg"
+						src="http://www.hbw.com/sites/default/files/styles/large_a/public/figures/hbw10/jpg/10_73_255_Erythropygia%20galactotes_galactotes.jpg"
+						alt="Erythropygia galactotes">
+					<img class="birdImg"
+						src="http://www.hbw.com/sites/default/files/styles/large_a/public/figures/hbw11/jpg/11_46_127_Hippolais%20pallida.jpg"
+						alt="Hippolais pallida">
+					<img class="birdImg"
+						src="http://www.hbw.com/sites/default/files/styles/large_a/public/figures/hbw11/jpg/11_55_262_Sylvia%20melanocephala_melanocephala_m.jpg"
+						alt="Sylvia melanocephala">
+					<img class="birdImg"
+						src="http://www.hbw.com/sites/default/files/styles/large_a/public/figures/hbw04/jpg/04_07_058_streptopelia_decaocto_decaocto.jpg"
+						alt="Streptopelia decaocto">
+				</div>
+			</div>
+			<div id="data" class="barchart"></div>
+		</div>
+
+		<div id="rightBox">
+			<div id="map"></div>
+			<svg id="svgNorth" version="1.1" xmlns="http://www.w3.org/2000/svg" width="960" height="500">
+				<path id="pathNorth" fill="none" stroke="blue" stroke-width="2" d="" />
+				<defs>
+					<path id="arrowheadNorth" stroke-width="3" d="M7,0 L-7,-5 L-7,5 Z" />
+				</defs>
+			</svg>
+			<svg id="svgSouth" version="1.1" xmlns="http://www.w3.org/2000/svg" width="960" height="500">
+				<path id="pathSouth" fill="none" stroke="red" stroke-width="2" d="" />
+				<defs>
+					<path id="arrowheadSouth" stroke-width="3" d="M7,0 L-7,-5 L-7,5 Z" />
+				</defs>
+			</svg>
+			<svg id="svgLegend" version="1.1" xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+			</svg>
+			<svg id="tl"></svg>
+		</div>
+	</div>
+	<script src="functionallity.js"></script>
+</body>
